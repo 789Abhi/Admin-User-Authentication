@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\categoryController;
+use App\Http\Controllers\usercontroller;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,15 +18,21 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+Route::group(['middleware'=>'auth'],function(){
+    
+    Route::get('home',[Authcontroller::class,'home'])->name('home');
+    Route::get('logout',[Authcontroller::class,'logout'])->name('logout');
+});
 
-Auth::routes();
+Route::middleware(['auth','isAdmin'])->group(function()
+{
+    Route::get('/dashboard', 'Admin\FrontendController@index');
+    Route::get('/categories','Admin\categoryController@index');
+    Route::get('/Add-category','Admin\categoryController@add');
+    Route::post('/insert-category','Admin\categoryController@insert');
+    Route::get('edit-prod/{id}',[categoryController::class,'edit']);
+    Route::put('update-category/{id}',[categoryController::class,'update']);
+    Route::get('delete-category/{id}',[categoryController::class,'destroy']);
+});
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
-
-Route::group(['middleware' => ['auth','isAdmin']], function () {
-
-    Route::get('/dashboard', function () {
-       return "This is Admin";
-    });
- 
- });
+  
